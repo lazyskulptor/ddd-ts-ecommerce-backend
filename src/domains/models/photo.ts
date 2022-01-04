@@ -8,7 +8,7 @@ export interface PhotoProps extends ValueObjectProps {
 
 export class Photo extends ValueObject<PhotoProps> implements PhotoProps {
 
-  static create(props: Partial<PhotoProps>): Photo {
+  static build(props: Partial<PhotoProps>): Photo {
     return new Photo(props as PhotoProps);
   }
 

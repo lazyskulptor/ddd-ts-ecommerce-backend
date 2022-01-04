@@ -17,6 +17,21 @@ export abstract class Entity<T extends IEntity> {
   get id(): string {
     return this._id;
   }
+  get createdAt(): Date {
+    return this._props.createdAt;
+  }
+  get updatedAt(): Date {
+    return this._props.updatedAt;
+  }
+  set updatedAt(time: Date) {
+    this._props.updatedAt = time;
+  }
+  get deletedAt(): Date {
+    return this._props.deletedAt;
+  }
+  set deletedAt(time: Date) {
+    this._props.updatedAt = time;
+  }
   
   protected get _props(): T {
     this._properties.id = this._id;
@@ -25,15 +40,11 @@ export abstract class Entity<T extends IEntity> {
 
   protected set _props(props: T) {
     props.createdAt = this._props.createdAt;
-    this._props = props;
+    this._properties = props;
   }
 
   get props(): T {
     return this._props;
-  }
-  
-  set props(props: T) {
-    this._props = props;
   }
 
   protected abstract isSameType(v: Entity<T>): v is Entity<T>;

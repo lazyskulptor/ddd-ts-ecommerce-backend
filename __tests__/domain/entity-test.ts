@@ -2,9 +2,9 @@ import { Entity, IEntity } from "@/domains/abstract/entity";
 import { ProductProps } from "@/domains/models/product";
 import Product from "@/domains/models/product";
 
-describe('Entity 기본 테스트', () => {
-  it('id 는 바꿀 수 없음', () => {
-    const product = Product.create({ id: '1234', name: 'Hyeonjun' });
+describe('Entity basic test', () => {
+  it('id immutability', () => {
+    const product = Product.build({ id: '1234', name: 'Hyeonjun' });
 
     expect(product.props.id).toBe('1234');
     expect(product.props.name).toBe('Hyeonjun');
@@ -16,11 +16,19 @@ describe('Entity 기본 테스트', () => {
     expect(product.props.name).toBe('Park');
   });
 
-  it('id 는 바꿀 수 없음', () => {
-    const product = Product.create({ id: '1234', name: 'Hyeonjun' });
-    const entity = Sample.create({ id: '1234', name: '' });
+  it('id equality', () => {
+    const product = Product.build({ id: '1234', name: 'Hyeonjun' });
+    const entity = Sample.build({ id: '1234', name: '' });
 
     expect(product.equals(entity as unknown as Entity<ProductProps>)).not.toBeTruthy();
+  });
+
+  it('prop can`t be overwritten direct', () => {
+    const product = Product.build({ id: '1234', name: 'Hyeonjun' });
+    //@ts-ignore
+    const op = () => product.props = { ...product.props, name: "Josh" };
+
+    expect(op).toThrowError(TypeError);
   });
 });
 
@@ -33,7 +41,7 @@ class Sample extends Entity<SampleProps> {
     return v instanceof Sample;
   }
 
-  static create(props: Partial<SampleProps>): Sample {
+  static build(props: Partial<SampleProps>): Sample {
     return new Sample(props as SampleProps);
   }
 }

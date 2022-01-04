@@ -12,7 +12,6 @@
     "@": "./dist"
   },
   "author": "Park Hyeonjun",
-  "license": "ISC",
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.36",
