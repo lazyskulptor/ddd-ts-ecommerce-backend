@@ -1,16 +1,19 @@
 import { Entity } from "@/domains/abstract/entity";
 
 export interface ValueObjectProps {
-  [index: string]: any;
+  [index: string]: any;  // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export abstract class ValueObject<T extends ValueObjectProps> {
   // 해당 값을 JSON 타입으로 변환하기 유용하게 하기 위함
+  // This is useful to convert JSON propertites
   readonly props: T;
   
   protected constructor(props: T) {
     this.props = props;
-    const freeze = e => {
+    Object.freeze(this.props);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const freeze = (e: any) => {
       if(typeof e === 'object' && !(e instanceof Entity)) {
         Object.values(e).forEach(freeze);
         Object.freeze(e);
@@ -20,11 +23,14 @@ export abstract class ValueObject<T extends ValueObjectProps> {
   }
 
   prototype(): T {
-    const clone = e => {
-      const obj = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const clone = (e: any) => {
+      const obj = Array.isArray(e) ? [] : {};
       Object.keys(e).forEach(k => {
         if (e[k] && typeof e[k] === 'object') {
-          obj[k] = clone(e[k]);
+          obj[k] = (e[k] instanceof Entity)?
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (e[k] as Entity<any>).reconstitue() : clone(e[k]);
         } else {
           obj[k] = e[k];
         }
@@ -34,7 +40,7 @@ export abstract class ValueObject<T extends ValueObjectProps> {
     return clone(this.props) as T;
   }
 
-  public equals(vo?: ValueObject<T>): boolean {
+  equals(vo?: ValueObject<T>): boolean {
     if (vo === null || vo === undefined) {
       return false;
     }

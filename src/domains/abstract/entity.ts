@@ -1,21 +1,30 @@
 export interface IEntity {
   id: string;
+  _discriminator: Readonly<string>;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
 }
 
 export abstract class Entity<T extends IEntity> {
-  private readonly _id: string | undefined;
+  private readonly __discriminator: string;
+  readonly _id: string | undefined;
   private _properties: T;
   
-  protected constructor(props: T) {
+  protected constructor(discriminator: string, props: T) {
+    this.__discriminator = discriminator;
+    props._discriminator = discriminator;
     this._id = props.id;
     this._properties = props;
   }
+
+  abstract reconstitue(): Entity<T>;
   
   get id(): string {
     return this._id;
+  }
+  get _discriminator(): string {
+    return this.__discriminator;
   }
   get createdAt(): Date {
     return this._props.createdAt;
@@ -47,10 +56,8 @@ export abstract class Entity<T extends IEntity> {
     return this._props;
   }
 
-  protected abstract isSameType(v: Entity<T>): v is Entity<T>;
-  
   equals (candidate?: Entity<T>) : boolean {
-    if (candidate == null || candidate == undefined) {
+    if (candidate === null || candidate === undefined) {
       return false;
     }
     
@@ -58,10 +65,12 @@ export abstract class Entity<T extends IEntity> {
       return true;
     }
     
-    if (!this.isSameType(candidate)) {
+    if (!(candidate instanceof Entity)) {
       return false;
     }
   
-    return String(this._id) === String(candidate._id);
+    return String(this._id) === String(candidate._id)
+      && this._discriminator === candidate._discriminator;
   }
 }
+

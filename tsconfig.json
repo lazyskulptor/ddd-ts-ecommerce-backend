@@ -13,8 +13,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./__tests__/*"],
-      "@tools/*": ["./__tests__/tools/*"],
+      "@tools/*": ["./__tests__/tools/*"]
     },
     "allowSyntheticDefaultImports": true
-  },
+  }
 }

@@ -9,7 +9,7 @@ export default class FormSyntaxError extends Error{
     this.reason[field] = reasons;
   }
   
-  get reasons() {
+  get reasons(): { [field: string]: string[] } {
     return this.reason;
   }
 }

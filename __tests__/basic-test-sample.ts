@@ -1,6 +1,6 @@
 test('null', () => {
   const n = null;
-  console.log('기본 테스트 방법');
+  console.log('basic way to test');
   expect(n).toBeNull();
 });
 

@@ -13,7 +13,7 @@ describe('Value Object basic test', () => {
         val3: [[[[{ a: { b: 'hi' } }]]], []],
       });
 
-      //@ts-ignore
+      //@ts-expect-error to test
       const op1 = () => photo.displayName = 'sample.jpg';
       const op2 = () => photo.props.displayName = 'sample.jpg';
       const op3 = () => photo.props.size[0] = 10;
@@ -37,8 +37,21 @@ describe('Value Object basic test', () => {
 
       expect(photo.props['product'].name ).toBe("Josh");
     });
+  });
 
-    it('gets prototype property and changes it', () => {
+  describe('prototype of VO', () => {
+
+    it('tried to change state of Entity cloned by prototype', () => {
+      const product = Product.build({ id: '1234', name: 'Hyeonjun' });
+      const photo = Photo.build({ ...props, product });
+      const cloned = Photo.build(photo.prototype());
+
+      cloned.props['product'].name = 'Josh';
+
+      expect(cloned.props['product'].name).toBe('Josh');
+    });
+
+    it('build new instance by prototype', () => {
       const photo = Photo.build(props);
 
       const prototype = photo.prototype();

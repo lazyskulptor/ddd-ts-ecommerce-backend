@@ -8,18 +8,35 @@ export interface ProductProps extends IEntity {
 }
 
 export default class Product extends Entity<ProductProps> implements ProductProps {
-  protected isSameType(v: Entity<ProductProps>): v is Entity<ProductProps> {
-    return v instanceof Product;
-  }
   
-  constructor(props: ProductProps) {
-    super(props);
+  protected constructor(props: ProductProps) {
+    super('entity:product', props);
   }
-  name: string;
-  price: number;
-  productImgs: Photo[];
+
+  reconstitue(): Product {
+    return new Product(this.props);
+  }
 
   static build(props: Partial<ProductProps>): Product {
     return new Product(props as ProductProps);
+  }
+  
+  get name(): string {
+    return this.props.name;
+  }
+  set name(name: string) {
+    this.props.name = name;
+  }
+  get price(): number {
+    return this.props.price;
+  }
+  set price(price: number) {
+    this.props.price = price;
+  }
+  get productImgs(): Photo[] {
+    return this.props.productImgs;
+  }
+  set productImgs(photos: Photo[]) {
+    this.props.productImgs = photos;
   }
 }
