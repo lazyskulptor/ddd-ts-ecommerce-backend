@@ -1,13 +1,12 @@
-## Ecommerce(이커머스) DDD 서비스
-# social-news-backend
+# Ecommerce(이커머스) DDD 서비스
 
 This is Ecommerce Project using DDD.  
 
 ## Usage
 
-    To Install  
+    // To Install  
     $ yarn install
-    To Test  
+    // To Test  
     $ yarn test
 
 ### Bugs
