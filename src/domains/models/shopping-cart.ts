@@ -1,44 +1,38 @@
-import { ValueObject, ValueObjectProps } from "@/domains/abstract/value-object";
+import { buildVO, prototype, ValueObject } from "@/domains/abstract/value-object";
 import Product from "@/domains/models/product";
 import Order from "@/domains/models/order";
 
-export interface ShoppingCartProps extends ValueObjectProps {
+export interface ShoppingCartProps extends ValueObject {
   products: Product[];
   totalPrice: number;
 }
 
-export class ShoppingCart extends ValueObject<ShoppingCartProps> implements ShoppingCartProps {
-  static build(props: Partial<ShoppingCartProps> = {}): ShoppingCart {
-    if (!props.products) {
-      props.products = [];
-    }
-    props.totalPrice = Order.calTotalPrice(props.products);
-    return new ShoppingCart(props as ShoppingCartProps);
-  }
+const validateShoppingCart = (v?: ShoppingCartProps) => {
+  const that = v ?? {} as ShoppingCartProps;
+  that.products = that.products ?? [];
+  that.totalPrice = that.totalPrice ?? 0;
+  return that;
+};
 
-  add(...products: Product[]): ShoppingCart {
-    const props = this.prototype();
-    props.products.push(...products);
-    props.totalPrice = Order.calTotalPrice(props.products);
-    return new ShoppingCart(props);
-  }
+export const buildShoppingCart = (v?: ShoppingCartProps) => {
+  const param = validateShoppingCart(v);
+  return buildVO(param);
+};
 
-  remove(...products: Product[]): ShoppingCart {
-    const props = this.prototype();
-    products.forEach(e => {
-      const index = props.products.findIndex(ee => ee._id === e._id);
-      props.products.splice(index, 1);
-    });
-    props.totalPrice = Order.calTotalPrice(props.products);
-    return new ShoppingCart(props);
-  }
+export const add = (v: ShoppingCartProps, ...products: Product[]): ShoppingCartProps => {
+  const props = prototype(v);
+  props.products.push(...products);
+  props.totalPrice = Order.calTotalPrice(props.products);
+  return buildShoppingCart(props);
+};
 
-  get products(): Product[] {
-    return this.props.products;
-  }
-
-  get totalPrice(): number {
-    return this.props.totalPrice;
-  }
-}
-
+export const remove = (v: ShoppingCartProps, ...products: Product[]) => {
+  const props = prototype(v);
+  products.forEach(e => {
+    const index = props.products.findIndex(ee => ee._id === e._id);
+    props.products.splice(index, 1);
+  });
+  props.totalPrice = Order.calTotalPrice(props.products);
+  return buildShoppingCart(props);
+};
+  

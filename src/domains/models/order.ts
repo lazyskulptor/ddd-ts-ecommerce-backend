@@ -1,12 +1,12 @@
 import { Entity, IEntity } from "@/domains/abstract/entity";
 import Product from "@/domains/models/product";
-import { ShoppingCart } from "@/domains/models/shopping-cart";
+import { ShoppingCartProps } from "@/domains/models/shopping-cart";
 
 export const ORDER_STATUS_VALS = ['PENDING_PAYMENT', 'FAILED', 'PAYED', 'SHIPPING', 'ARRIVED', 'CANCELLING', 'CANCELED', 'CONFIRMED'] as const;
 export type ORDER_STATUS = typeof ORDER_STATUS_VALS[number];
 
 export interface OrderProps extends IEntity {
-  cart: ShoppingCart
+  cart: ShoppingCartProps
   status: ORDER_STATUS;
 }
 
@@ -20,23 +20,23 @@ export default class Order extends Entity<OrderProps> implements OrderProps {
     return new Order(this.props);
   }
 
-  static build(param: ShoppingCart | OrderProps): Order {
-    if (param instanceof ShoppingCart) {
-      const now = new Date();
-      return new Order({ cart: param,
-                         status: 'PENDING_PAYMENT',
-                         createdAt: now,
-                         updatedAt: now,
-                         deletedAt: null,
-                      } as OrderProps);
-    }
-    return new Order(param);
+  static build(param: ShoppingCartProps | OrderProps): Order {
+    // if (param instanceof ShoppingCartProps) {
+    //   const now = new Date();
+    //   return new Order({ cart: param,
+    //                      status: 'PENDING_PAYMENT',
+    //                      createdAt: now,
+    //                      updatedAt: now,
+    //                      deletedAt: null,
+    //                   } as OrderProps);
+    // }
+    return new Order(param as OrderProps);
   }
 
   static calTotalPrice = (products: Product[]): number =>
     products.reduce((sum, curr) => sum + curr?.price ?? 0, 0);
 
-  get cart(): ShoppingCart {
+  get cart(): ShoppingCartProps {
     return this.props.cart;
   }
   get status(): ORDER_STATUS {
