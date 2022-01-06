@@ -25,4 +25,4 @@ jobs:
         run: yarn test --detectOpenHandles
 
       - name: Success
-        run: echo deployed successfully.
+        run: echo Test Passed.
