@@ -1,0 +1,28 @@
+name: Integration Test
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    container: node:16-alpine
+    env:
+      NODE_ENV: CI
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup node environment
+        run: yarn install --frozen-lockfile
+
+      - name: transpile to javascript
+        run: yarn run build
+
+      - name: Test 
+        run: yarn test --detectOpenHandles
+
+      - name: Success
+        run: echo deployed successfully.
