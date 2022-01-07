@@ -1,12 +1,13 @@
-import { Entity } from "@/domains/abstract/entity";
+import { buildEntity, isEntity } from "@/domains/abstract/entity";
 
 export interface ValueObject {
   [index: string]: any;  // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export const buildVO = <T extends ValueObject>(v: T): T => {
-  freeze(v);
-  return v;
+  const that = { ...v };
+  freeze(that);
+  return that;
 };
 
 export const prototype = <T extends ValueObject>(v: T): T => deepClone(v) as T;
@@ -17,7 +18,7 @@ export const equals = <T>(v1: T, v2: T): boolean => deepEquals(v1, v2);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const freeze = (v: any): any => {
-  if(typeof v === 'object' && !(v instanceof Entity)) {
+  if(typeof v === 'object' && !isEntity(v)) {
     Object.values(v).forEach(freeze);
     Object.freeze(v);
   }
@@ -29,8 +30,8 @@ const deepClone = (e: any): any => {
   Object.keys(e).forEach(k => {
     if (e[k] && typeof e[k] === 'object') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      obj[k] = (e[k] instanceof Entity)?
-        (e[k] as Entity<any>).reconstitue() : prototype(e[k]);
+      obj[k] = isEntity(e[k])?
+        buildEntity(e[k]) : deepClone(e[k]);
     } else {
       obj[k] = e[k];
     }

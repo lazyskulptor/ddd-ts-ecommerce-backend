@@ -6,4 +6,4 @@ export interface Photo extends ValueObject {
   size: [x: number, y: number]
 }
 
-export const buildPhoto = (e: Photo) => buildVO<Photo>(e);
+export const buildPhoto = (e: Photo): Photo => buildVO<Photo>(e);

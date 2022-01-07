@@ -1,6 +1,6 @@
-import { buildVO } from "@/domains/abstract/value-object";
+import { buildVO, prototype } from "@/domains/abstract/value-object";
 import { buildPhoto, Photo } from "@/domains/models/photo";
-import Product from "@/domains/models/product";
+import { createProduct } from "@/domains/models/product";
 
 describe('Value Object basic test', () => {
   const props: Photo =
@@ -30,35 +30,35 @@ describe('Value Object basic test', () => {
     });
 
     it('tried to change state of entity in VO', () => {
-      const product = Product.build({ id: '1234', name: 'Hyeonjun' });
-      // const photo = Photo.build({ ...props, product });
+      const product = createProduct({ name: 'Hyeonjun', price: 0, productImgs: [] });
+      const photo = buildPhoto({ ...props, product });
 
-      // photo.props['product'].name = "Josh";
+      photo['product'].name = "Josh";
 
-      // expect(photo.props['product'].name ).toBe("Josh");
+      expect(photo['product'].name ).toBe("Josh");
     });
   });
 
   describe('prototype of VO', () => {
 
     it('tried to change state of Entity cloned by prototype', () => {
-      const product = Product.build({ id: '1234', name: 'Hyeonjun' });
-      // const photo = Photo.build({ ...props, product });
-      // const cloned = Photo.build(photo.prototype());
+      const product = createProduct({ name: 'Hyeonjun', price: 0, productImgs: [] });
+      const photo = buildPhoto({ ...props, product });
+      const cloned = buildPhoto(prototype(photo));
 
-      // cloned.props['product'].name = 'Josh';
+      cloned['product'].name = 'Josh';
 
-      // expect(cloned.props['product'].name).toBe('Josh');
+      expect(cloned['product'].name).toBe('Josh');
     });
 
     it('build new instance by prototype', () => {
-      // const photo = Photo.build(props);
+      const photo = buildPhoto(props);
 
-      // const prototype = photo.prototype();
-      // prototype.uri = 'file://';
+      const copied = prototype(photo);
+      copied.uri = 'file://';
 
-      // expect(prototype.uri).toBe('file://');
-      // expect(photo.prototype().uri).toBe('https://');
+      expect(copied.uri).toBe('file://');
+      expect(prototype(photo).uri).toBe('https://');
     });
   });
 });

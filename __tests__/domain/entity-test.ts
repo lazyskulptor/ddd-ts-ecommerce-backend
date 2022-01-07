@@ -1,50 +1,41 @@
-import { Entity, IEntity } from "@/domains/abstract/entity";
-import Product from "@/domains/models/product";
+import { areEntity, buildEntity, equals, IEntity, isEntity } from "@/domains/abstract/entity";
+import { prototype } from "@/domains/abstract/value-object";
+import { buildProduct, ProductProps } from "@/domains/models/product";
 
 describe('Entity basic test', () => {
+  it('checks instance is Entity', () => {
+    const props = { _discriminator: 'sample', id: '1234' } as unknown as ProductProps;
+    const entity1 = buildProduct(props);
+    const entity2 = buildProduct(props);
+    const notEntity = buildEntity(props);
+    delete notEntity._discriminator;
+
+    expect(isEntity(entity1)).toBeTruthy();
+    expect(isEntity(entity2)).toBeTruthy();
+    expect(areEntity(entity1, entity2)).toBeTruthy();
+    expect(areEntity(entity1, notEntity)).not.toBeTruthy();
+    expect(isEntity(notEntity)).not.toBeTruthy();
+  });
+
   it('id immutability', () => {
-    const product = Product.build({ id: '1234', name: 'Hyeonjun' });
+    const product = buildProduct({ id: '1234', name: 'Hyeonjun' } as ProductProps);
 
-    expect(product.props.id).toBe('1234');
-    expect(product.props.name).toBe('Hyeonjun');
+    expect(product.id).toBe('1234');
+    expect(product.name).toBe('Hyeonjun');
 
-    product.props.id = '4567';
-    product.props.name = 'Park';
+    product.name = 'Park';
 
-    expect(product.props.id).not.toBe('4567');
-    expect(product.props.name).toBe('Park');
+    expect(product.name).toBe('Park');
   });
 
   it('id equality', () => {
-    const product = Product.build({ id: '1234', name: 'Hyeonjun' });
-    const entity = Sample.build({ id: '1234', name: '' });
-    const cloned = product.reconstitue();
+    const product = buildProduct({ id: '1234', name: 'Hyeonjun' } as ProductProps);
+    const entity = buildEntity({ _discriminator: 'sample', id: '1234', name: '' } as unknown as IEntity);
+    const cloned = prototype(product);
 
-    //@ts-expect-error to test
-    expect(product.equals(entity)).not.toBeTruthy();
-    expect(product.equals(entity as Entity<Product>)).not.toBeTruthy();
-    expect(cloned.props.name).toBe(product.name);
-  });
-
-  it('prop can`t be overwritten direct', () => {
-    const product = Product.build({ id: '1234', name: 'Hyeonjun' });
-    //@ts-expect-error to test
-    const op = () => product.props = { ...product.props, name: "Josh" };
-
-    expect(op).toThrowError(TypeError);
+    
+    expect(equals(product, entity)).not.toBeTruthy();
+    expect(cloned.name).toBe(product.name);
   });
 });
 
-interface SampleProps extends IEntity {
-  name: string
-}
-
-class Sample extends Entity<SampleProps> {
-  reconstitue(): Entity<SampleProps> {
-    return Sample.build(this.props);
-  }
-
-  static build(props: Partial<SampleProps>): Sample {
-    return new Sample('sample', props as SampleProps);
-  }
-}
