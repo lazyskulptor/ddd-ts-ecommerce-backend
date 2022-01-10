@@ -1,10 +1,10 @@
 import { areEntity, buildEntity, equals, IEntity, isEntity } from "@/domains/abstract/entity";
 import { prototype } from "@/domains/abstract/value-object";
-import { buildProduct, ProductProps } from "@/domains/models/product";
+import { buildProduct, Product } from "@/domains/models/product";
 
 describe('Entity basic test', () => {
   it('checks instance is Entity', () => {
-    const props = { _discriminator: 'sample', id: '1234' } as unknown as ProductProps;
+    const props = { _discriminator: 'sample', id: '1234' } as unknown as Product;
     const entity1 = buildProduct(props);
     const entity2 = buildProduct(props);
     const notEntity = buildEntity(props);
@@ -18,7 +18,7 @@ describe('Entity basic test', () => {
   });
 
   it('id immutability', () => {
-    const product = buildProduct({ id: '1234', name: 'Hyeonjun' } as ProductProps);
+    const product = buildProduct({ id: '1234', name: 'Hyeonjun' } as Product);
 
     expect(product.id).toBe('1234');
     expect(product.name).toBe('Hyeonjun');
@@ -29,7 +29,7 @@ describe('Entity basic test', () => {
   });
 
   it('id equality', () => {
-    const product = buildProduct({ id: '1234', name: 'Hyeonjun' } as ProductProps);
+    const product = buildProduct({ id: '1234', name: 'Hyeonjun' } as Product);
     const entity = buildEntity({ _discriminator: 'sample', id: '1234', name: '' } as unknown as IEntity);
     const cloned = prototype(product);
 

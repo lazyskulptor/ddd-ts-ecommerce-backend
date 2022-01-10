@@ -1,6 +1,6 @@
 import { buildEntity, IEntity } from "@/domains/abstract/entity";
 
-export interface UserProps extends IEntity {
+export interface User extends IEntity {
   _discriminator: 'entity:user';
   name: string;
   address: string;
@@ -8,8 +8,8 @@ export interface UserProps extends IEntity {
   email: string;
 }
 
-export const buildUser = (ent: Omit<UserProps, '_discriminator'>): UserProps => {
-  const that = ent as UserProps;
+export const buildUser = (ent: Omit<User, '_discriminator'>): User => {
+  const that = ent as User;
   that._discriminator = 'entity:user';
   return buildEntity(that);
 };

@@ -1,31 +1,31 @@
 import { buildVO, prototype, ValueObject } from "@/domains/abstract/value-object";
-import { ProductProps } from "@/domains/models/product";
+import { Product } from "@/domains/models/product";
 
-export interface ShoppingCartProps extends ValueObject {
-  products: ProductProps[];
+export interface ShoppingCart extends ValueObject {
+  products: Product[];
   totalPrice: number;
 }
 
-const validateShoppingCart = (v?: ShoppingCartProps) => {
-  const that = v ?? {} as ShoppingCartProps;
+const validateShoppingCart = (v?: ShoppingCart) => {
+  const that = v ?? {} as ShoppingCart;
   that.products = that.products ?? [];
   that.totalPrice = that.totalPrice ?? 0;
   return that;
 };
 
-export const buildShoppingCart = (v?: ShoppingCartProps): ShoppingCartProps => {
+export const buildShoppingCart = (v?: ShoppingCart): ShoppingCart => {
   const param = validateShoppingCart(v);
   return buildVO(param);
 };
 
-export const add = (v: ShoppingCartProps, ...products: ProductProps[]): ShoppingCartProps => {
+export const add = (v: ShoppingCart, ...products: Product[]): ShoppingCart => {
   const props = prototype(v);
   props.products.push(...products);
   props.totalPrice = calTotalPrice(props.products);
   return buildShoppingCart(props);
 };
 
-export const remove = (v: ShoppingCartProps, ...products: ProductProps[]): ShoppingCartProps => {
+export const remove = (v: ShoppingCart, ...products: Product[]): ShoppingCart => {
   const props = prototype(v);
   products.forEach(e => {
     const index = props.products.findIndex(ee => ee.id === e.id);
@@ -35,5 +35,5 @@ export const remove = (v: ShoppingCartProps, ...products: ProductProps[]): Shopp
   return buildShoppingCart(props);
 };
   
-const calTotalPrice = (products: ProductProps[]): number =>
+const calTotalPrice = (products: Product[]): number =>
     products.reduce((sum, curr) => sum + curr?.price ?? 0, 0);
