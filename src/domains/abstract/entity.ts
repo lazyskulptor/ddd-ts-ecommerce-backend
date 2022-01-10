@@ -1,76 +1,47 @@
+import FormSyntaxError from "@/domains/errors/FormSyntaxError";
+
 export interface IEntity {
-  id: string;
-  _discriminator: Readonly<string>;
+  readonly id: string;
+  _discriminator: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
 }
 
-export abstract class Entity<T extends IEntity> {
-  private readonly __discriminator: string;
-  readonly _id: string | undefined;
-  private _properties: T;
-  
-  protected constructor(discriminator: string, props: T) {
-    this.__discriminator = discriminator;
-    props._discriminator = discriminator;
-    this._id = props.id;
-    this._properties = props;
-  }
+export const buildEntity = <T extends IEntity>(ent: T): T => {
+  if (!isEntity(ent))
+    throw new FormSyntaxError('Not Valid Entity. Entity must have _discriminator by Type');
 
-  abstract reconstitue(): Entity<T>;
-  
-  get id(): string {
-    return this._id;
-  }
-  get _discriminator(): string {
-    return this.__discriminator;
-  }
-  get createdAt(): Date {
-    return this._props.createdAt;
-  }
-  get updatedAt(): Date {
-    return this._props.updatedAt;
-  }
-  set updatedAt(time: Date) {
-    this._props.updatedAt = time;
-  }
-  get deletedAt(): Date {
-    return this._props.deletedAt;
-  }
-  set deletedAt(time: Date) {
-    this._props.updatedAt = time;
-  }
-  
-  protected get _props(): T {
-    this._properties.id = this._id;
-    return this._properties;
-  }
+  return {
+    ...ent,
+    createdAt: ent.createdAt ?? new Date(),
+    updatedAt: ent.updatedAt ?? ent.createdAt,
+    deletedAt: ent.deletedAt ?? null,
+  };
+};
 
-  protected set _props(props: T) {
-    props.createdAt = this._props.createdAt;
-    this._properties = props;
-  }
+export const equals = <T extends IEntity>(e1: T, e2: T): boolean => {
+  return shallowEquals(e1, e2);
+};
 
-  get props(): T {
-    return this._props;
-  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const areEntity = (...ents: IEntity[]): boolean => !ents.find(e => !isEntity(e));
 
-  equals (candidate?: Entity<T>) : boolean {
-    if (candidate === null || candidate === undefined) {
-      return false;
-    }
-    
-    if (this === candidate) {
-      return true;
-    }
-    
-    if (!(candidate instanceof Entity)) {
-      return false;
-    }
-  
-    return String(this._id) === String(candidate._id)
-      && this._discriminator === candidate._discriminator;
-  }
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isEntity = (ent: IEntity): ent is IEntity => {
+  return '_discriminator' in ent;
+};
+
+const shallowEquals = <T extends IEntity>(e1: T, e2: T): boolean => {
+  if (!e1 || !e2)
+    return false;
+
+  if (!areEntity(e1, e2) || e1._discriminator !== e2._discriminator)
+    return false;
+
+  if (areEntity(e1, e2))
+    return e1 === e2 || e1.id === e2.id;
+
+  return false;
+};
 

@@ -1,42 +1,21 @@
-import { Entity, IEntity } from "@/domains/abstract/entity";
+import { buildEntity, IEntity } from "@/domains/abstract/entity";
 import { Photo } from "@/domains/models/photo";
 
-export interface ProductProps extends IEntity {
+export interface Product extends IEntity {
+  _discriminator: 'entity:product';
   name: string;
   price: number;
   productImgs: Photo[];
 }
 
-export default class Product extends Entity<ProductProps> implements ProductProps {
-  
-  protected constructor(props: ProductProps) {
-    super('entity:product', props);
-  }
+export const createProduct = (ent: Omit<Product, keyof IEntity>): Product => {
+  const that = ent as Product;
+  return buildProduct(that);
+};
 
-  reconstitue(): Product {
-    return new Product(this.props);
-  }
+export const buildProduct = (ent: Omit<Product, '_discriminator'>): Product => {
+  const that = ent as Product;
+  that._discriminator = 'entity:product';
+  return buildEntity(that);
+};
 
-  static build(props: Partial<ProductProps>): Product {
-    return new Product(props as ProductProps);
-  }
-  
-  get name(): string {
-    return this.props.name;
-  }
-  set name(name: string) {
-    this.props.name = name;
-  }
-  get price(): number {
-    return this.props.price;
-  }
-  set price(price: number) {
-    this.props.price = price;
-  }
-  get productImgs(): Photo[] {
-    return this.props.productImgs;
-  }
-  set productImgs(photos: Photo[]) {
-    this.props.productImgs = photos;
-  }
-}

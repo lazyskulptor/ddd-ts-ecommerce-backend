@@ -1,48 +1,16 @@
-import { Entity, IEntity } from "@/domains/abstract/entity";
+import { buildEntity, IEntity } from "@/domains/abstract/entity";
 
-export interface UserProps extends IEntity {
+export interface User extends IEntity {
+  _discriminator: 'entity:user';
   name: string;
   address: string;
   phone: string;
   email: string;
 }
 
-export default class User extends Entity<UserProps> implements UserProps {
-  
-  constructor(props: UserProps) {
-    super('entity:user', props);
-  }
+export const buildUser = (ent: Omit<User, '_discriminator'>): User => {
+  const that = ent as User;
+  that._discriminator = 'entity:user';
+  return buildEntity(that);
+};
 
-  static build(props: Partial<UserProps>): User {
-    return new User(props as UserProps);
-  }
-
-  reconstitue(): User {
-    return new User(this.props);
-  }
-
-  get name(): string {
-    return this.props.name;
-  }
-  set name(name: string) {
-    this.props.name = name;
-  }
-  get address(): string {
-    return this.props.address;
-  }
-  set address(address: string) {
-    this.props.address = address;
-  }
-  get phone(): string {
-    return this.props.phone;
-  }
-  set phone(phone: string) {
-    this.props.phone = phone;
-  }
-  get email(): string {
-    return this.props.email;
-  }
-  set email(email: string) {
-    this.props.email = email;
-  }
-}

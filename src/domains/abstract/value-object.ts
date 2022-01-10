@@ -1,69 +1,65 @@
-import { Entity } from "@/domains/abstract/entity";
+import { buildEntity, isEntity } from "@/domains/abstract/entity";
 
-export interface ValueObjectProps {
+export interface ValueObject {
   [index: string]: any;  // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export abstract class ValueObject<T extends ValueObjectProps> {
-  // 해당 값을 JSON 타입으로 변환하기 유용하게 하기 위함
-  // This is useful to convert JSON propertites
-  readonly props: T;
-  
-  protected constructor(props: T) {
-    this.props = props;
-    Object.freeze(this.props);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const freeze = (e: any) => {
-      if(typeof e === 'object' && !(e instanceof Entity)) {
-        Object.values(e).forEach(freeze);
-        Object.freeze(e);
-      }
-    };
-    freeze(this.props);
-  }
+export const buildVO = <T extends ValueObject>(v: T): T => {
+  const that = { ...v };
+  freeze(that);
+  return that;
+};
 
-  prototype(): T {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const clone = (e: any) => {
-      const obj = Array.isArray(e) ? [] : {};
-      Object.keys(e).forEach(k => {
-        if (e[k] && typeof e[k] === 'object') {
-          obj[k] = (e[k] instanceof Entity)?
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (e[k] as Entity<any>).reconstitue() : clone(e[k]);
-        } else {
-          obj[k] = e[k];
-        }
-      });
-      return obj;
-    };
-    return clone(this.props) as T;
-  }
+export const prototype = <T extends ValueObject>(v: T): T => deepClone(v) as T;
 
-  equals(vo?: ValueObject<T>): boolean {
-    if (vo === null || vo === undefined) {
-      return false;
+export const clone = <T extends ValueObject>(v: T): T => buildVO(prototype(v));
+
+export const equals = <T>(v1: T, v2: T): boolean => deepEquals(v1, v2);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const freeze = (v: any): any => {
+  if(typeof v === 'object' && !isEntity(v)) {
+    Object.values(v).forEach(freeze);
+    Object.freeze(v);
+  }
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const deepClone = (e: any): any => {
+  const obj = Array.isArray(e) ? [] : {};
+  Object.keys(e).forEach(k => {
+    if (e[k] && typeof e[k] === 'object') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      obj[k] = isEntity(e[k])?
+        buildEntity(e[k]) : deepClone(e[k]);
+    } else {
+      obj[k] = e[k];
     }
-    if (vo.props === undefined) {
-      return false;
-    }
-    return shallowEqual(this.props, vo.props);
-  }
-}
+  });
+  return obj;
+};
 
-const shallowEqual = (object1: ValueObjectProps, object2: ValueObjectProps) => {
-  const keys1 = Object.keys(object1);
-  const keys2 = Object.keys(object2);
+
+export const deepEquals = <T extends ValueObject>(v1: T, v2:T): boolean => {
+  if (!v1 || !v2) {
+    return false;
+  }
+
+  const keys1 = Object.keys(v1);
+  const keys2 = Object.keys(v2);
   
   if (keys1.length !== keys2.length) {
     return false;
   }
   
   for (const key of keys1) {
-    if (object1[key] !== object2[key]) {
+    if ((typeof v1[key] === 'object') && (typeof v1[key] === 'object')) {
+      if (!deepEquals(v1, v2)) return false;
+    } else if (v1[key] !== v2[key]) {
       return false;
     }
   }
   
   return true;
 };
+
